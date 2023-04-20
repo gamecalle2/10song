@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Spotify Top 10 Songs</title>
+	<style type="text/css">
+		/* Add your CSS styling here */
+		body {
+			font-family: Arial, sans-serif;
+			background-color: #f2f2f2;
+		}
+		h1 {
+			text-align: center;
+			margin-top: 50px;
+		}
+		.container {
+			margin: 0 auto;
+			max-width: 600px;
+			padding: 50px;
+			background-color: #fff;
+			box-shadow: 0 4px 8px rgba(0,0,0,.1);
+			border-radius: 5px;
+		}
+		.button-container {
+			display: flex;
+			justify-content: center;
+			margin-bottom: 30px;
+		}
+		.button-container button {
+			font-size: 20px;
+			padding: 10px 20px;
+			background-color: #1db954;
+			color: #fff;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: all 0.3s ease-in-out;
+		}
+		.button-container button:hover {
+			background-color: #178c3e;
+			box-shadow: 0 4px 8px rgba(0,0,0,.2);
+			transform: translateY(-2px);
+		}
+		.song-list {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+			font-size: 18px;
+			line-height: 1.6;
+		}
+		.song-list li {
+			margin-bottom: 10px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Spotify Top 10 Songs</h1>
+		<div class="button-container">
+			<button id="login-button">Log In with Spotify</button>
+		</div>
+		<ul class="song-list" id="top-10-songs"></ul>
+	</div>
+
+	<script type="text/javascript">
+		// Authenticate the user
+		const CLIENT_ID = 'YOUR_CLIENT_ID';
+		const REDIRECT_URI = 'YOUR_REDIRECT_URI';
+		const SCOPES = ['user-top-read'];
+		const spotifyAuthEndpoint = 'https://accounts.spotify.com/authorize';
+		const loginButton = document.getElementById('login-button');
+		const songList = document.getElementById('top-10-songs');
+
+		function handleLogin() {
+			window.location = `${spotifyAuthEndpoint}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPES.join('%20')}&response_type=token`;
+		}
+
+		loginButton.addEventListener('click', handleLogin);
+
+		// Retrieve the user's top 10 songs
+		function retrieveTopSongs() {
+			const accessToken = localStorage.getItem('69');
+			const topSongsEndpoint = 'https://api.spotify.com/v1/me/top/tracks?time_range=short_term&limit=10';
+			fetch(topSongsEndpoint, {
+				headers: {
+					'Authorization': `Bearer ${accessToken}`
+				}
+			})
+			.then(response => response.json())
+			.then(data => {
+				console.log(data.items);
+				data.items.forEach(item => {
+					const songTitle = item.name;
+					const artistNames = item.artists.map(artist => artist.name).join(', ');
+					const listItem = document.createElement('li');
+					listItem.innerText = `${songTitle} - ${artistNames}`;
+songList.appendChild(listItem);
+});
+})
+.catch(error => {
+console.log(error);
+});
+}
+	// Check if the user is already logged in
+	function checkLogin() {
+		const accessToken = localStorage.getItem('access_token');
+		if (accessToken) {
+			retrieveTopSongs();
+		}
+	}
+
+	checkLogin();
+</script>
+</body>
+</html>
